@@ -1,0 +1,4 @@
+# Minimal dependencies for the starter project
+# Add actual LLM client libraries when integrating (e.g., openai)
+click
+python-dotenv
