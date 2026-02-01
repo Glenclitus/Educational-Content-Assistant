@@ -495,6 +495,16 @@
                 <div class="welcome-icon">📖</div>
                 <h2>Welcome! 👋</h2>
                 <p>Upload a PDF module to get started with interactive learning</p>
+                <div style="margin-top: 2rem; padding: 1.5rem; background: #f0f7ff; border-radius: 8px; max-width: 500px;">
+                    <h4 style="color: #667eea; margin-bottom: 1rem;">How to use:</h4>
+                    <ol style="text-align: left; line-height: 1.8; color: #666;">
+                        <li>Click "Upload PDF" to select a study material</li>
+                        <li>The system will automatically extract content from the PDF</li>
+                        <li>Click on the module in the sidebar to select it</li>
+                        <li>Type your questions in the "Ask a Question" section</li>
+                        <li>Get AI-powered answers based on your study material</li>
+                    </ol>
+                </div>
             </div>
         </main>
     </div>
@@ -505,7 +515,17 @@
         let modules = [];
 
         // Fetch modules on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check API connection
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                if (!response.ok) {
+                    console.warn('API health check failed');
+                }
+            } catch (error) {
+                alert('⚠️ Cannot connect to backend.\n\nPlease make sure:\n1. Flask backend is running on port 5000\n2. Run: python app.py\n\nError: ' + error.message);
+            }
+            
             fetchModules();
             setInterval(fetchModules, 5000); // Auto-refresh every 5 seconds
         });
@@ -567,9 +587,17 @@
                 </div>
 
                 <div class="ask-section">
-                    <h3>❓ Ask a Question</h3>
+                    <h3>❓ Ask a Question About This Module</h3>
+                    <div style="background: #f5f5f5; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.9rem; color: #666;">
+                        <strong>💡 Tips:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                            <li>Ask specific questions about the module content</li>
+                            <li>Use keywords from your study material</li>
+                            <li>The AI will search the PDF and provide answers</li>
+                        </ul>
+                    </div>
                     <div class="input-group">
-                        <textarea id="questionInput" placeholder="Ask a doubt or question about this module..." 
+                        <textarea id="questionInput" placeholder="Ask your doubt or question here... (e.g., 'What is ethics?', 'Explain the main concepts')" 
                                   onkeypress="handleKeyPress(event)"></textarea>
                         <button class="ask-btn" onclick="submitQuestion()">💡 Ask Question</button>
                     </div>
@@ -654,9 +682,11 @@
 
             const askBtn = questionInput.nextElementSibling;
             askBtn.disabled = true;
-            askBtn.innerHTML = '⏳ Processing<span class="loading"></span>';
+            askBtn.innerHTML = '⏳ Thinking<span class="loading"></span>';
 
             try {
+                console.log('Submitting question to API:', { pdf_id: selectedModule.id, question });
+                
                 const response = await fetch(`${API_URL}/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -666,14 +696,25 @@
                     })
                 });
 
-                if (!response.ok) throw new Error('Failed to submit question');
-
+                console.log('Response status:', response.status);
                 const data = await response.json();
+                console.log('Response data:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to submit question');
+                }
+
                 questionInput.value = '';
                 await fetchConversations();
+                
+                // Show success feedback
+                const historyDiv = document.getElementById('conversationHistory');
+                if (historyDiv) {
+                    historyDiv.scrollTop = historyDiv.scrollHeight;
+                }
             } catch (error) {
-                alert(`❌ Error: ${error.message}`);
                 console.error('Question error:', error);
+                alert(`❌ Error: ${error.message}\n\nTroubleshooting:\n- Make sure the backend is running on port 5000\n- Check browser console for details`);
             } finally {
                 askBtn.disabled = false;
                 askBtn.textContent = '💡 Ask Question';
