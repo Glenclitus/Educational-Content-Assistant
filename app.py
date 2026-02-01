@@ -2,17 +2,18 @@
 Flask backend for Educational Content Assistant
 Handles PDF uploads, storage, retrieval, and LLM-powered Q&A
 """
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
 import sqlite3
 import json
 from datetime import datetime
+import traceback
 from pdf_processor import extract_text_from_pdf
 from llm_handler import answer_question
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='')
 CORS(app)
 
 # Configuration
@@ -62,6 +63,11 @@ def allowed_file(filename):
 @app.route('/api/health', methods=['GET'])
 def health():
     return jsonify({'status': 'ok', 'message': 'Educational Content Assistant API running'})
+
+@app.route('/')
+def index():
+    """Serve the main index page"""
+    return send_from_directory('static', 'index.html')
 
 @app.route('/api/upload', methods=['POST'])
 def upload_pdf():

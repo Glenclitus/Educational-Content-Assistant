@@ -2,10 +2,6 @@
 LLM handler - handles Q&A using OpenAI or Claude API
 """
 import os
-from openai import OpenAI
-
-# Initialize OpenAI client
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY', ''))
 
 def answer_question(question, context, max_tokens=500):
     """
@@ -21,7 +17,15 @@ def answer_question(question, context, max_tokens=500):
     """
     try:
         if not os.getenv('OPENAI_API_KEY'):
-            return "LLM not configured. Set OPENAI_API_KEY environment variable to enable Q&A."
+            # Return a mock answer if no API key is set
+            return f"""Based on the provided content, here's an answer to your question: "{question}"
+            
+This is a demo response. To enable real AI-powered answers, please set the OPENAI_API_KEY environment variable with your OpenAI API key.
+
+In a production environment with LLM enabled, this would provide a detailed, contextual answer based on your module content."""
+        
+        from openai import OpenAI
+        client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         
         # Truncate context to avoid token limits
         context_truncated = context[:3000] if len(context) > 3000 else context
@@ -45,4 +49,4 @@ def answer_question(question, context, max_tokens=500):
         return response.choices[0].message.content
     
     except Exception as e:
-        return f"Error: Unable to generate answer. {str(e)}"
+        return f"Demo response: Unable to generate AI answer at this moment. {str(e)}"
