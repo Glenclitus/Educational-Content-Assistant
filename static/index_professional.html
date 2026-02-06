@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studley - AI Study Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #141414;
+            --bg-tertiary: #1e1e1e;
+            --bg-hover: #252525;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            --border-color: #2a2a2a;
+            --accent-orange: #ff6b35;
+            --accent-green: #2ecc71;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.6);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.8);
+        }
+
+        :root[data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --bg-hover: #dee2e6;
+            --text-primary: #0a0a0a;
+            --text-secondary: #495057;
+            --text-muted: #6c757d;
+            --border-color: #dee2e6;
+            --accent-orange: #ff6b35;
+            --accent-green: #2ecc71;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --gradient-primary: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
+            transition: background 0.3s ease;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.8rem;
+            padding: 0 0.8rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-orange);
+            color: white;
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-hover);
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-orange);
+        }
+
+        .toggle-slider {
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 23px;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: var(--bg-primary);
+            padding: 0.7rem 1.2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-btn, .profile-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+        }
+
+        .notification-btn:hover, .profile-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== HOME PAGE ===== */
+        .hero-section {
+            background: var(--gradient-primary);
+            border-radius: 24px;
+            padding: 3rem;
+            color: white;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 0.9rem 2rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #ff6b35;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* ===== MCQ GAME PAGE ===== */
+        .mcq-game-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .game-header {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-progress {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .progress-item {
+            text-align: center;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
+        }
+
+        .progress-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .question-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .difficulty-easy {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--accent-green);
+        }
+
+        .difficulty-medium {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .difficulty-hard {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option-card {
+            padding: 1.2rem 1.5rem;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .option-card:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-orange);
+        }
+
+        .option-card.selected {
+            background: var(--accent-orange);
+            border-color: var(--accent-orange);
+            color: white;
+        }
+
+        .option-card.correct {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: white;
+        }
+
+        .option-card.incorrect {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+            color: white;
+        }
+
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .option-card.selected .option-letter,
+        .option-card.correct .option-letter,
+        .option-card.incorrect .option-letter {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        /* ===== DOUBT SOLVER PAGE ===== */
+        .doubt-solver-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        .chat-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+        }
+
+        .chat-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .chat-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .chat-header p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+            max-width: 70%;
+        }
+
+        .message.user .message-content {
+            background: var(--accent-orange);
+            color: white;
+        }
+
+        .message.bot .message-content {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .message-bubble {
+            padding: 1rem 1.2rem;
+            border-radius: 16px;
+            margin-bottom: 0.3rem;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 0 0.5rem;
+        }
+
+        .chat-input-container {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-primary);
+            resize: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .chat-input button {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--accent-orange);
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.05);
+        }
+
+        .quick-actions {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 1rem;
+        }
+
+        .quick-action-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-orange);
+        }
+
+        /* ===== PROGRESS PAGE (GITHUB STYLE) ===== */
+        .progress-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .progress-header {
+            margin-bottom: 2rem;
+        }
+
+        .progress-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .heatmap-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .heatmap-container h3 {
+            margin-bottom: 1.5rem;
+        }
+
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(53, 1fr);
+            gap: 4px;
+            margin-top: 1rem;
+        }
+
+        .heatmap-cell {
+            width: 12px;
+            height: 12px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            transition: all 0.2s ease;
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.5);
+        }
+
+        .heatmap-cell.level-1 {
+            background: rgba(255, 107, 53, 0.3);
+        }
+
+        .heatmap-cell.level-2 {
+            background: rgba(255, 107, 53, 0.6);
+        }
+
+        .heatmap-cell.level-3 {
+            background: rgba(255, 107, 53, 0.9);
+        }
+
+        .heatmap-cell.level-4 {
+            background: #ff6b35;
+        }
+
+        .activity-feed {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== MODULES PAGE ===== */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .module-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-orange);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .module-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .module-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .module-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .module-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .module-progress {
+            margin-top: 1rem;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+            .doubt-solver-container {
+                grid-template-columns: 1fr;
+            }
+            .quick-actions {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                z-index: 1000;
+            }
+            .sidebar.open {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">🎓</span>
+                    <span>Studley</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <div class="nav-item active" data-page="home">
+                        <span class="nav-icon">🏠</span>
+                        <span>Dashboard</span>
+                    </div>
+                    <div class="nav-item" data-page="modules">
+                        <span class="nav-icon">📚</span>
+                        <span>My Modules</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Study</div>
+                    <div class="nav-item" data-page="mcq">
+                        <span class="nav-icon">🎮</span>
+                        <span>MCQ Game</span>
+                    </div>
+                    <div class="nav-item" data-page="doubt">
+                        <span class="nav-icon">💬</span>
+                        <span>Doubt Solver</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Analytics</div>
+                    <div class="nav-item" data-page="progress">
+                        <span class="nav-icon">📊</span>
+                        <span>Progress</span>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="theme-toggle" onclick="toggleTheme()">
+                    <span>🌙 Dark Mode</span>
+                    <div class="toggle-switch active">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="search-bar">
+                    <span>🔍</span>
+                    <input type="text" placeholder="Search modules, topics...">
+                </div>
+                <div class="top-bar-actions">
+                    <button class="notification-btn">🔔</button>
+                    <button class="profile-btn">👤</button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- HOME PAGE -->
+                <div class="page active" id="home-page">
+                    <div class="hero-section">
+                        <div class="hero-content">
+                            <h1>Learn Faster...<br>Like, a Lot Faster</h1>
+                            <p>AI-powered study assistant that helps you ace your exams & crush your homework 10x faster.</p>
+                            <div class="hero-buttons">
+                                <button class="btn-primary" onclick="switchPage('modules')">Start Learning</button>
+                                <button class="btn-secondary">Watch Demo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">🔥</div>
+                            <div class="stat-value" id="streak-count">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📚</div>
+                            <div class="stat-value" id="modules-count">0</div>
+                            <div class="stat-label">Modules Completed</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⏱️</div>
+                            <div class="stat-value" id="time-count">0</div>
+                            <div class="stat-label">Hours Studied</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-value" id="accuracy-count">0%</div>
+                            <div class="stat-label">Accuracy Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODULES PAGE -->
+                <div class="page" id="modules-page">
+                    <div class="progress-header">
+                        <h1>My Study Modules</h1>
+                        <p style="color: var(--text-secondary);">Manage and track your learning materials</p>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <button class="btn-primary" onclick="uploadModule()" style="background: var(--accent-orange); color: white;">
+                            + Upload New Module
+                        </button>
+                        <button class="btn-secondary" onclick="addManualConcept()" style="margin-left: 1rem;">
+                            ✏️ Add Manual Notes
+                        </button>
+                    </div>
+
+                    <div class="modules-grid" id="modules-grid">
+                        <!-- Modules will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- MCQ GAME PAGE -->
+                <div class="page" id="mcq-page">
+                    <div class="mcq-game-container">
+                        <div class="game-header">
+                            <div class="game-info">
+                                <h2>MCQ Challenge</h2>
+                                <p style="color: var(--text-secondary);">Test your knowledge with AI-generated questions</p>
+                            </div>
+                            <div class="game-progress">
+                                <div class="progress-item">
+                                    <div class="progress-label">Score</div>
+                                    <div class="progress-value" id="game-score">0/0</div>
+                                </div>
+                                <div class="progress-item">
+                                    <div class="progress-label">Accuracy</div>
+                                    <div class="progress-value" id="game-accuracy">0%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="mcq-content">
+                            <!-- Questions will be loaded here -->
+                            <div style="text-align: center; padding: 4rem 0;">
+                                <p style="font-size: 3rem; margin-bottom: 1rem;">🎮</p>
+                                <h3 style="margin-bottom: 1rem;">Ready to Play?</h3>
+                                <p style="color: var(--text-secondary); margin-bottom: 2rem;">Select a module to start practicing</p>
+                                <button class="btn-primary" onclick="switchPage('modules')" style="background: var(--accent-orange); color: white;">
+                                    Choose Module
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DOUBT SOLVER PAGE -->
+                <div class="page" id="doubt-page">
+                    <div class="doubt-solver-container">
+                        <div class="chat-container">
+                            <div class="chat-header">
+                                <h2>AI Doubt Solver</h2>
+                                <p>Ask anything about your study materials</p>
+                            </div>
+                            <div class="chat-messages" id="chat-messages">
+                                <div class="message bot">
+                                    <div class="message-avatar">AI</div>
+                                    <div class="message-content">
+                                        <div class="message-bubble">
+                                            👋 Hi! I'm your AI study assistant. Ask me anything about your modules, and I'll help you understand the concepts better!
+                                        </div>
+                                        <div class="message-time">Just now</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-input-container">
+                                <div class="chat-input">
+                                    <textarea id="chat-input" placeholder="Type your question here..." rows="1"></textarea>
+                                    <button onclick="sendMessage()">➤</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="quick-actions">
+                            <h3>Quick Actions</h3>
+                            <button class="quick-action-btn" onclick="quickQuestion('Explain this concept')">
+                                💡 Explain concept
+                            </button>
+                            <button class="quick-action-btn" onclick="quickQuestion('Give examples')">
+                                📝 Give examples
+                            </button>
+                            <button class="quick-action-btn" onclick="quickQuestion('Create summary')">
+                                📋 Create summary
+                            </button>
+                            <button class="quick-action-btn" onclick="quickQuestion('Practice questions')">
+                                🎯 Practice questions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROGRESS PAGE -->
+                <div class="page" id="progress-page">
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <h1>Your Progress</h1>
+                            <p style="color: var(--text-secondary);">Track your learning journey</p>
+                        </div>
+
+                        <div class="progress-stats">
+                            <div class="stat-card">
+                                <div class="stat-icon">🔥</div>
+                                <div class="stat-value">7</div>
+                                <div class="stat-label">Current Streak</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">✅</div>
+                                <div class="stat-value">156</div>
+                                <div class="stat-label">Questions Solved</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">⏱️</div>
+                                <div class="stat-value">23h</div>
+                                <div class="stat-label">Total Study Time</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">🎯</div>
+                                <div class="stat-value">87%</div>
+                                <div class="stat-label">Average Score</div>
+                            </div>
+                        </div>
+
+                        <div class="heatmap-container">
+                            <h3>Study Activity</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Your study pattern over the past year</p>
+                            <div class="heatmap" id="activity-heatmap">
+                                <!-- Heatmap cells will be generated by JS -->
+                            </div>
+                        </div>
+
+                        <div class="activity-feed">
+                            <h3 style="margin-bottom: 1.5rem;">Recent Activity</h3>
+                            <div class="activity-item">
+                                <div class="activity-icon">✅</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Completed MCQ Challenge</div>
+                                    <div class="activity-time">2 hours ago • Data Structures</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">📚</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Added new module</div>
+                                    <div class="activity-time">5 hours ago • Machine Learning</div>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">🎯</div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Achieved 90% accuracy</div>
+                                    <div class="activity-time">Yesterday • Database Systems</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let currentModule = null;
+        let modules = [];
+
+        // Theme toggle
+        function toggleTheme() {
+            const root = document.documentElement;
+            const currentTheme = root.getAttribute('data-theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', newTheme);
+            
+            const toggle = document.querySelector('.toggle-switch');
+            const label = document.querySelector('.theme-toggle span');
+            
+            if (newTheme === 'light') {
+                toggle.classList.remove('active');
+                label.textContent = '☀️ Light Mode';
+            } else {
+                toggle.classList.add('active');
+                label.textContent = '🌙 Dark Mode';
+            }
+        }
+
+        // Initialize dark theme
+        document.documentElement.setAttribute('data-theme', 'dark');
+
+        // Page navigation
+        function switchPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageName + '-page').classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.page === pageName) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Navigation click handlers
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const page = item.dataset.page;
+                switchPage(page);
+                
+                if (page === 'modules') {
+                    loadModules();
+                } else if (page === 'progress') {
+                    generateHeatmap();
+                }
+            });
+        });
+
+        // Load modules
+        async function loadModules() {
+            try {
+                const response = await fetch(`${API_URL}/modules`);
+                const data = await response.json();
+                modules = data.modules || [];
+                
+                const grid = document.getElementById('modules-grid');
+                if (modules.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 4rem;">
+                            <p style="font-size: 3rem; margin-bottom: 1rem;">📚</p>
+                            <h3 style="margin-bottom: 1rem;">No modules yet</h3>
+                            <p style="color: var(--text-secondary);">Upload your first study material to get started</p>
+                        </div>
+                    `;
+                } else {
+                    grid.innerHTML = modules.map(m => `
+                        <div class="module-card" onclick="selectModule(${m.id})">
+                            <div class="module-header">
+                                <div class="module-icon">📄</div>
+                                <div class="module-actions">
+                                    <button class="icon-btn" onclick="event.stopPropagation(); deleteModule(${m.id})">🗑️</button>
+                                </div>
+                            </div>
+                            <div class="module-title">${m.module_name}</div>
+                            <div class="module-meta">
+                                <span>📅 ${new Date(m.upload_date).toLocaleDateString()}</span>
+                            </div>
+                            <div class="module-progress">
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width: ${Math.random() * 100}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                // Update stats
+                document.getElementById('modules-count').textContent = modules.length;
+            } catch (error) {
+                console.error('Error loading modules:', error);
+            }
+        }
+
+        // Generate heatmap
+        function generateHeatmap() {
+            const heatmap = document.getElementById('activity-heatmap');
+            let html = '';
+            for (let i = 0; i < 365; i++) {
+                const level = Math.floor(Math.random() * 5);
+                const className = level > 0 ? `level-${level}` : '';
+                html += `<div class="heatmap-cell ${className}" title="Day ${i + 1}"></div>`;
+            }
+            heatmap.innerHTML = html;
+        }
+
+        // Chat functionality
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const question = input.value.trim();
+            if (!question) return;
+
+            const messages = document.getElementById('chat-messages');
+            
+            // Add user message
+            messages.innerHTML += `
+                <div class="message user">
+                    <div class="message-avatar">👤</div>
+                    <div class="message-content">
+                        <div class="message-bubble">${escapeHtml(question)}</div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+            `;
+
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+
+            // Simulate AI response
+            setTimeout(() => {
+                messages.innerHTML += `
+                    <div class="message bot">
+                        <div class="message-avatar">AI</div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                I understand your question about "${question}". Let me help you with that...
+                            </div>
+                            <div class="message-time">Just now</div>
+                        </div>
+                    </div>
+                `;
+                messages.scrollTop = messages.scrollHeight;
+            }, 1000);
+        }
+
+        function quickQuestion(text) {
+            document.getElementById('chat-input').value = text;
+            sendMessage();
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadModules();
+            generateHeatmap();
+        });
+
+        // Auto-resize chat textarea
+        document.getElementById('chat-input').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Enter to send message
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -120,7 +120,7 @@ def get_modules():
     try:
         conn = sqlite3.connect(DB_NAME)
         c = conn.cursor()
-        c.execute('SELECT id, filename, module_name, upload_date FROM pdfs ORDER BY upload_date DESC')
+        c.execute('SELECT id, filename, module_name, upload_date, content_text FROM pdfs ORDER BY upload_date DESC')
         modules = c.fetchall()
         conn.close()
         
@@ -130,7 +130,8 @@ def get_modules():
                     'id': m[0],
                     'filename': m[1],
                     'module_name': m[2],
-                    'upload_date': m[3]
+                    'upload_date': m[3],
+                    'content_text': m[4]
                 }
                 for m in modules
             ]
@@ -253,8 +254,8 @@ def delete_module(pdf_id):
         conn.commit()
         conn.close()
         
-        # Delete file
-        if os.path.exists(filepath):
+        # Delete file (only if it's an actual file, not manual content)
+        if filepath and os.path.exists(filepath):
             os.remove(filepath)
         
         return jsonify({'success': True, 'message': 'Module deleted'}), 200
@@ -262,5 +263,81 @@ def delete_module(pdf_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/save-concept', methods=['POST'])
+def save_concept():
+    """Save manually entered study concepts"""
+    try:
+        data = request.get_json()
+        module_name = data.get('module_name', 'Untitled Module')
+        content = data.get('content', '')
+        
+        if not content:
+            return jsonify({'error': 'Content cannot be empty'}), 400
+        
+        # Store in database (no file path for manual concepts)
+        conn = sqlite3.connect(DB_NAME)
+        c = conn.cursor()
+        c.execute('''
+            INSERT INTO pdfs (filename, filepath, content_text, module_name)
+            VALUES (?, ?, ?, ?)
+        ''', (f'{module_name}.txt', '', content, module_name))
+        module_id = c.lastrowid
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'module_id': module_id,
+            'module_name': module_name,
+            'message': 'Concept saved successfully'
+        }), 201
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/generate-mcq', methods=['POST'])
+def generate_mcq():
+    """Generate MCQ questions from module content"""
+    try:
+        data = request.get_json()
+        pdf_id = data.get('pdf_id')
+        count = data.get('count', 5)
+        
+        if not pdf_id:
+            return jsonify({'error': 'Missing pdf_id'}), 400
+        
+        # Get module content
+        conn = sqlite3.connect(DB_NAME)
+        c = conn.cursor()
+        c.execute('SELECT content_text, module_name FROM pdfs WHERE id = ?', (pdf_id,))
+        result = c.fetchone()
+        conn.close()
+        
+        if not result or not result[0]:
+            return jsonify({'error': 'Module content not found'}), 404
+        
+        content_text = result[0]
+        module_name = result[1]
+        
+        # Generate MCQs using LLM
+        from llm_handler import generate_mcqs
+        questions = generate_mcqs(content_text, count)
+        
+        return jsonify({
+            'success': True,
+            'questions': questions,
+            'module_name': module_name
+        }), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    init_db()
+    print("\n" + "="*50)
+    print("🚀 ClassMate Backend Server Starting...")
+    print("="*50)
+    print(f"📡 Server running at: http://localhost:5000")
+    print(f"📡 Also available at: http://127.0.0.1:5000")
+    print("="*50 + "\n")
+    app.run(debug=False, host='0.0.0.0', port=5000, use_reloader=False)

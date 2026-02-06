@@ -33,11 +33,6 @@
             overflow: hidden;
         }
 
-        body.study-mode .sidebar { display: none; }
-        body.study-mode .main-content { padding-left: 0; }
-        body.study-mode .page-content { max-width: 1100px; }
-        body.study-mode .top-bar { border-bottom-color: var(--accent-blue); box-shadow: 0 4px 14px rgba(33,150,243,0.3); }
-
         .app-container { display: flex; height: 100vh; }
 
         /* SIDEBAR */
@@ -320,23 +315,6 @@
             color: white;
             transition: all 0.3s;
             box-shadow: 0 3px 12px rgba(33, 150, 243, 0.3);
-        }
-
-        .study-mode-btn {
-            padding: 0.6rem 1rem;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-hover));
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-
-        .study-mode-btn.active {
-            border-color: var(--accent-blue);
-            box-shadow: 0 4px 12px rgba(33,150,243,0.4);
-            color: var(--accent-light);
         }
 
         .profile-btn:hover {
@@ -685,97 +663,6 @@
         ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
 
-        /* CHAT PANEL */
-        .chat-toggle {
-            position: fixed;
-            right: 18px;
-            bottom: 18px;
-            background: linear-gradient(135deg, var(--accent-blue), #1976D2);
-            color: white;
-            padding: 0.9rem 1.1rem;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(33,150,243,0.4);
-            cursor: pointer;
-            font-weight: 700;
-            z-index: 999;
-        }
-
-        .chat-panel {
-            position: fixed;
-            right: 20px;
-            bottom: 90px;
-            width: 340px;
-            max-height: 70vh;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.35);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            z-index: 998;
-        }
-
-        .chat-panel.hidden { display: none; }
-
-        .chat-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-tertiary);
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-        }
-
-        .chat-input {
-            display: flex;
-            gap: 0.5rem;
-            padding: 1rem;
-            border-top: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-        }
-
-        .chat-input textarea {
-            flex: 1;
-            min-height: 60px;
-            max-height: 120px;
-            padding: 0.8rem;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-primary);
-            resize: vertical;
-        }
-
-        .chat-bubble {
-            max-width: 80%;
-            padding: 0.9rem 1rem;
-            border-radius: 12px;
-            line-height: 1.5;
-            border: 1px solid var(--border-color);
-        }
-
-        .chat-bubble.user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-light));
-            color: white;
-            border-color: transparent;
-        }
-
-        .chat-bubble.ai {
-            align-self: flex-start;
-            background: var(--bg-tertiary);
-        }
-
         /* RESPONSIVE */
         @media (max-width: 1024px) {
             .sidebar { position: fixed; z-index: 1000; }
@@ -803,15 +690,15 @@
             </div>
 
             <div class="nav-section">
-                <div class="nav-item active" data-page="home" onclick="showPage('home', this)">
+                <div class="nav-item active" onclick="showPage('home')">
                     <span class="nav-icon">🏠</span>
                     <span>Home</span>
                 </div>
-                <div class="nav-item" data-page="practice" onclick="showPage('practice', this)">
+                <div class="nav-item" onclick="showPage('practice')">
                     <span class="nav-icon">✏️</span>
                     <span>Practice</span>
                 </div>
-                <div class="nav-item" data-page="profile" onclick="showPage('profile', this)">
+                <div class="nav-item" onclick="showPage('profile')">
                     <span class="nav-icon">👤</span>
                     <span>Profile</span>
                 </div>
@@ -834,7 +721,6 @@
                     <input type="text" class="search-box" placeholder="Search modules, topics..." id="search-input">
                 </div>
                 <div class="top-bar-right">
-                    <button class="study-mode-btn" id="study-mode-btn" onclick="toggleStudyMode()" title="Toggle focus layout">Study Mode</button>
                     <div class="study-timer">
                         <button class="timer-control-btn" id="timer-btn" onclick="toggleTimer()" title="Start/Stop Timer">▶</button>
                         <span class="timer-display" id="timer-display">00:00</span>
@@ -945,21 +831,6 @@
                 </div>
             </div>
         </main>
-        
-        <button class="chat-toggle" id="chat-toggle" onclick="toggleChat()">💬 Chat with AI</button>
-        <div class="chat-panel hidden" id="chat-panel">
-            <div class="chat-header">
-                <span>ClassMate Chat</span>
-                <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.9rem;" onclick="toggleChat(false)">Close</button>
-            </div>
-            <div class="chat-messages" id="chat-messages">
-                <div class="chat-bubble ai">Select a module and ask a question to get started.</div>
-            </div>
-            <div class="chat-input">
-                <textarea id="chat-input" placeholder="Ask anything about the selected module..."></textarea>
-                <button class="btn btn-primary" style="padding: 0.8rem 1.2rem;" onclick="sendChatMessage()">Send</button>
-            </div>
-        </div>
     </div>
 
     <input type="file" id="file-input" accept=".pdf" style="display: none;" onchange="handleFileUpload(event)">
@@ -972,7 +843,6 @@
         let timerRunning = false;
         let timerInterval = null;
         let currentPracticeType = 'mcq';
-        let chatOpen = false;
 
         // INITIALIZE
         document.addEventListener('DOMContentLoaded', () => {
@@ -981,135 +851,19 @@
             generateHeatmap();
             setInterval(loadModules, 10000);
             updateTimerDisplay();
-            renderChatIntro('Select a module and ask anything.');
         });
 
         // NAVIGATION
-        function showPage(pageName, el = null) {
+        function showPage(pageName) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-
-            const targetPage = document.getElementById(`${pageName}-page`);
-            if (targetPage) targetPage.classList.add('active');
-
-            const navItem = el?.closest?.('.nav-item') || document.querySelector(`.nav-item[data-page="${pageName}"]`);
-            if (navItem) navItem.classList.add('active');
+            
+            document.getElementById(pageName + '-page').classList.add('active');
+            event.target.closest('.nav-item')?.classList.add('active');
         }
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('collapsed');
-        }
-
-        function toggleStudyMode() {
-            const active = document.body.classList.toggle('study-mode');
-            const btn = document.getElementById('study-mode-btn');
-            if (btn) {
-                btn.classList.toggle('active', active);
-                btn.textContent = active ? 'Study Mode On' : 'Study Mode';
-            }
-        }
-
-        // CHAT
-        function renderChatIntro(message) {
-            const messages = document.getElementById('chat-messages');
-            if (!messages) return;
-            messages.innerHTML = '';
-            appendChatMessage('ai', message);
-        }
-
-        function appendChatMessage(role, text) {
-            const messages = document.getElementById('chat-messages');
-            if (!messages) return;
-            const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${role}`;
-            bubble.textContent = text;
-            messages.appendChild(bubble);
-            messages.scrollTop = messages.scrollHeight;
-        }
-
-        async function toggleChat(forceOpen = null) {
-            const panel = document.getElementById('chat-panel');
-            const toggleBtn = document.getElementById('chat-toggle');
-            chatOpen = forceOpen !== null ? forceOpen : !chatOpen;
-
-            panel?.classList.toggle('hidden', !chatOpen);
-            if (toggleBtn) {
-                toggleBtn.textContent = chatOpen ? 'Close Chat' : '💬 Chat with AI';
-            }
-
-            if (!chatOpen) return;
-
-            if (selectedModule) {
-                await loadChatHistory(selectedModule.id);
-            } else {
-                renderChatIntro('Select a module to start chatting.');
-            }
-        }
-
-        async function loadChatHistory(moduleId) {
-            renderChatIntro('Loading conversation...');
-            try {
-                const response = await fetch(`${API_URL}/conversations/${moduleId}`);
-                if (!response.ok) throw new Error('Failed to load chat history');
-                const data = await response.json();
-                const history = data.conversations || [];
-
-                const messages = document.getElementById('chat-messages');
-                if (!messages) return;
-                messages.innerHTML = '';
-
-                if (!history.length) {
-                    appendChatMessage('ai', 'Ask your first question for this module.');
-                    return;
-                }
-
-                history.reverse().forEach(conv => {
-                    appendChatMessage('user', conv.question);
-                    appendChatMessage('ai', conv.answer);
-                });
-            } catch (error) {
-                renderChatIntro(`Unable to load chat: ${error.message}`);
-            }
-        }
-
-        async function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const messages = document.getElementById('chat-messages');
-            if (!input || !messages) return;
-
-            if (!selectedModule) {
-                alert('Please select a module to chat about.');
-                return;
-            }
-
-            const question = input.value.trim();
-            if (!question) return;
-
-            appendChatMessage('user', question);
-            input.value = '';
-
-            const thinking = document.createElement('div');
-            thinking.className = 'chat-bubble ai';
-            thinking.textContent = 'Thinking...';
-            messages.appendChild(thinking);
-            messages.scrollTop = messages.scrollHeight;
-
-            try {
-                const response = await fetch(`${API_URL}/ask`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ pdf_id: selectedModule.id, question })
-                });
-
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data.error || 'Failed to fetch answer');
-                }
-
-                thinking.textContent = data.answer || 'No answer returned.';
-            } catch (error) {
-                thinking.textContent = `Error: ${error.message}`;
-            }
         }
 
         // MODULES
@@ -1150,19 +904,14 @@
             renderModules();
             showPage('practice');
             await loadPracticeContent(module);
-            if (chatOpen) {
-                await loadChatHistory(module.id);
-            } else {
-                renderChatIntro(`Ready to chat about ${module.module_name || 'this module'}.`);
-            }
         }
 
         async function loadPracticeContent(module) {
             const content = document.getElementById('practice-content');
             content.innerHTML = `
                 <div class="practice-tabs">
-                    <div class="practice-tab active" onclick="switchPracticeType('mcq', this)">📝 Multiple Choice</div>
-                    <div class="practice-tab" onclick="switchPracticeType('descriptive', this)">✍️ Descriptive</div>
+                    <div class="practice-tab active" onclick="switchPracticeType('mcq')">📝 Multiple Choice</div>
+                    <div class="practice-tab" onclick="switchPracticeType('descriptive')">✍️ Descriptive</div>
                 </div>
                 <div class="card">
                     <button class="btn btn-primary" onclick="generateQuestions(${module.id})" style="width: 100%;">Generate Questions</button>
@@ -1171,12 +920,10 @@
             `;
         }
 
-        function switchPracticeType(type, el = null) {
+        function switchPracticeType(type) {
             currentPracticeType = type;
             document.querySelectorAll('.practice-tab').forEach(tab => tab.classList.remove('active'));
-            if (el) {
-                el.classList.add('active');
-            }
+            event.target.classList.add('active');
         }
 
         async function generateQuestions(moduleId) {
@@ -1192,29 +939,19 @@
 
         async function generateMCQs(moduleId) {
             const container = document.getElementById('questions-container');
-            container.innerHTML = '<div class="empty-state"><p style="color: var(--accent-light);">⏳ Generating 10 MCQs... Please wait.</p></div>';
-            
             try {
-                console.log('Generating MCQs for module:', moduleId);
                 const response = await fetch(`${API_URL}/generate-mcq`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ pdf_id: moduleId, count: 10 })
                 });
 
-                console.log('MCQ response status:', response.status);
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to generate');
-                }
+                if (!response.ok) throw new Error('Failed');
 
                 const data = await response.json();
-                console.log('Questions received:', data.questions?.length);
                 displayMCQs(data.questions || []);
             } catch (error) {
-                console.error('MCQ error:', error);
-                container.innerHTML = `<div class="empty-state"><p style="color: var(--accent-danger);">❌ ${error.message}</p><button class="btn btn-primary" onclick="generateQuestions(${moduleId})" style="margin-top: 1rem;">Try Again</button></div>`;
+                container.innerHTML = '<div class="empty-state"><p>Failed to generate MCQs. Please try again.</p></div>';
             }
         }
 
@@ -1306,23 +1043,18 @@
             document.getElementById('profile-questions').textContent = stats.questionsAttempted || 0;
             document.getElementById('profile-accuracy').textContent = (stats.accuracy || 0) + '%';
             document.getElementById('accuracy-rate').textContent = (stats.accuracy || 0) + '%';
-            const totalTimeSeconds = stats.totalTime || 0;
-            const totalHours = Math.floor(totalTimeSeconds / 3600);
-            const totalMinutes = Math.floor((totalTimeSeconds % 3600) / 60);
-            document.getElementById('profile-total-time').textContent = totalHours > 0 ? `${totalHours}h ${totalMinutes}m` : `${totalMinutes}m`;
         }
 
         function updateHomeStats() {
             const stats = getStats();
             document.getElementById('total-modules').textContent = modules.length;
             document.getElementById('study-streak').textContent = stats.streak || 0;
-            const totalMinutes = Math.floor((stats.totalTime || timerSeconds) / 60);
-            document.getElementById('total-time').textContent = `${totalMinutes}m`;
+            document.getElementById('total-time').textContent = Math.floor(timerSeconds / 60) + 'm';
             document.getElementById('accuracy-rate').textContent = (stats.accuracy || 0) + '%';
         }
 
         function getStats() {
-            return JSON.parse(localStorage.getItem('classmate-stats') || '{"streak": 0, "questionsAttempted": 0, "questionsCorrect": 0, "accuracy": 0, "totalTime": 0}');
+            return JSON.parse(localStorage.getItem('classmate-stats') || '{"streak": 0, "questionsAttempted": 0, "questionsCorrect": 0, "accuracy": 0}');
         }
 
         function saveStats(stats) {
@@ -1341,95 +1073,72 @@
             }
             
             heatmap.innerHTML = html;
-        }
-
-        // TIMER
+        } - MANUAL CONTROL
         function toggleTimer() {
             const btn = document.getElementById('timer-btn');
             if (timerRunning) {
+                // Pause timer
                 clearInterval(timerInterval);
                 timerInterval = null;
                 timerRunning = false;
                 btn.textContent = '▶';
                 btn.title = 'Start Timer';
                 btn.style.background = 'linear-gradient(135deg, var(--accent-blue), var(--accent-light))';
-                return;
+            } else {
+                // Start timer
+                timerRunning = true;
+                btn.textContent = '⏸';
+                btn.title = 'Pause Timer';
+                btn.style.background = 'linear-gradient(135deg, var(--accent-success), #66BB6A)';
+                timerInterval = setInterval(() => {
+                    timerSeconds++;
+                    updateTimerDisplay();
+                    
+                    const stats = getStats();
+                    stats.totalTime = (stats.totalTime || 0) + 1;
+                    const hours = Math.floor((stats.totalTime || 0) / 3600);
+                    const minutes = Math.floor(((stats.totalTime || 0) % 3600) / 60);
+                    document.getElementById('profile-total-time').textContent = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+                    saveStats(stats);
+                }, 1000);
             }
-
-            timerRunning = true;
-            btn.textContent = '⏸';
-            btn.title = 'Pause Timer';
-            btn.style.background = 'linear-gradient(135deg, var(--accent-success), #66BB6A)';
-            timerInterval = setInterval(() => {
-                timerSeconds++;
-                updateTimerDisplay();
-
-                const stats = getStats();
-                stats.totalTime = (stats.totalTime || 0) + 1;
-                const hours = Math.floor((stats.totalTime || 0) / 3600);
-                const minutes = Math.floor(((stats.totalTime || 0) % 3600) / 60);
-                document.getElementById('profile-total-time').textContent = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-                saveStats(stats);
-                updateHomeStats();
-            }, 1000);
         }
 
         function updateTimerDisplay() {
             const minutes = Math.floor(timerSeconds / 60);
             const seconds = timerSeconds % 60;
-            document.getElementById('timer-display').textContent =
-                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timer-display').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`s.totalTime = (stats.totalTime || 0) + 1;
+                document.getElementById('profile-total-time').textContent = Math.floor((stats.totalTime || 0) / 3600) + 'h';
+            }, 1000);
         }
 
         // UPLOAD
         function showUploadModal() {
-            console.log('Opening file picker...');
-            const fileInput = document.getElementById('file-input');
-            if (fileInput) {
-                fileInput.click();
-            } else {
-                console.error('File input element not found!');
-                alert('Error: File upload not available. Please refresh the page.');
-            }
+            document.getElementById('file-input').click();
         }
 
         async function handleFileUpload(event) {
             const file = event.target.files[0];
-            if (!file) {
-                console.log('No file selected');
-                return;
-            }
+            if (!file) return;
 
-            console.log('Uploading file:', file.name, 'Size:', file.size);
-            
-            // Show loading indicator
-            const originalText = event.target.parentElement?.textContent;
-            if (confirm(`Upload "${file.name}"?\n\nThis may take a moment to process.`)) {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('module_name', file.name.replace('.pdf', ''));
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('module_name', file.name.replace('.pdf', ''));
 
-                try {
-                    console.log('Sending to:', `${API_URL}/upload`);
-                    const response = await fetch(`${API_URL}/upload`, {
-                        method: 'POST',
-                        body: formData
-                    });
+            try {
+                const response = await fetch(`${API_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
 
-                    console.log('Response status:', response.status);
-                    const data = await response.json();
-                    console.log('Response data:', data);
-
-                    if (response.ok) {
-                        alert('✅ Module uploaded successfully!\n\n"' + file.name + '" is now available in your modules.');
-                        loadModules();
-                    } else {
-                        throw new Error(data.error || 'Upload failed');
-                    }
-                } catch (error) {
-                    console.error('Upload error:', error);
-                    alert('❌ Failed to upload module:\n\n' + error.message + '\n\nPlease check:\n1. File is a valid PDF\n2. File size is under 50MB\n3. Backend server is running');
+                if (response.ok) {
+                    loadModules();
+                    alert('Module uploaded successfully!');
                 }
+            } catch (error) {
+                console.error('Upload failed:', error);
+                alert('Failed to upload module. Please try again.');
             }
 
             event.target.value = '';
