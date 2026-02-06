@@ -6,6 +6,9 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 import sqlite3
 import json
 from datetime import datetime
@@ -171,30 +174,36 @@ def ask_doubt():
         pdf_id = data.get('pdf_id')
         question = data.get('question')
         
-        if not pdf_id or not question:
-            return jsonify({'error': 'Missing pdf_id or question'}), 400
+        if not question:
+            return jsonify({'error': 'Missing question'}), 400
         
-        # Get PDF content from database
-        conn = sqlite3.connect(DB_NAME)
-        c = conn.cursor()
-        c.execute('SELECT content_text FROM pdfs WHERE id = ?', (pdf_id,))
-        result = c.fetchone()
+        content_text = ""
         
-        if not result:
-            return jsonify({'error': 'Module not found'}), 404
-        
-        content_text = result[0]
+        # Get PDF content from database if pdf_id is provided
+        if pdf_id:
+            conn = sqlite3.connect(DB_NAME)
+            c = conn.cursor()
+            c.execute('SELECT content_text FROM pdfs WHERE id = ?', (pdf_id,))
+            result = c.fetchone()
+            
+            if result:
+                content_text = result[0]
+            conn.close()
         
         # Get answer from LLM
         answer = answer_question(question, content_text)
         
         # Store conversation
-        c.execute('''
-            INSERT INTO conversations (pdf_id, question, answer)
-            VALUES (?, ?, ?)
-        ''', (pdf_id, question, answer))
-        conn.commit()
-        conn.close()
+        # Store conversation if pdf_id is present
+        if pdf_id:
+            conn = sqlite3.connect(DB_NAME)
+            c = conn.cursor()
+            c.execute('''
+                INSERT INTO conversations (pdf_id, question, answer)
+                VALUES (?, ?, ?)
+            ''', (pdf_id, question, answer))
+            conn.commit()
+            conn.close()
         
         return jsonify({
             'success': True,
@@ -335,9 +344,9 @@ def generate_mcq():
 if __name__ == '__main__':
     init_db()
     print("\n" + "="*50)
-    print("🚀 ClassMate Backend Server Starting...")
+    print(" ClassMate Backend Server Starting...")
     print("="*50)
-    print(f"📡 Server running at: http://localhost:5000")
-    print(f"📡 Also available at: http://127.0.0.1:5000")
+    print(f" Server running at: http://localhost:5000")
+    print(f" Also available at: http://127.0.0.1:5000")
     print("="*50 + "\n")
     app.run(debug=False, host='0.0.0.0', port=5000, use_reloader=False)
